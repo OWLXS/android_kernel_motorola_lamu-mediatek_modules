@@ -81,9 +81,9 @@ void cfm_cfg_process(char *filename)
 	if (!filename)
 		return;
 
-	ret = request_firmware(&data, filename, NULL);
+	ret = request_firmware_direct(&data, filename, NULL);
 	if (ret != 0) {
-		pr_info("[WARN] request_firmware() fail (%s:%d)\n",
+		pr_info("[WARN] request_firmware_direct() fail (%s:%d)\n",
 				filename,
 				ret);
 		return;

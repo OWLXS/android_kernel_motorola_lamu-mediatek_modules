@@ -156,7 +156,7 @@ bool __weak connfem_is_internal(void)
 {
 	const struct firmware *data = NULL;
 
-	if (request_firmware(&data, internal_file, NULL) == 0) {
+	if (request_firmware_direct(&data, internal_file, NULL) == 0) {
 		release_firmware(data);
 		return true;
 	}
