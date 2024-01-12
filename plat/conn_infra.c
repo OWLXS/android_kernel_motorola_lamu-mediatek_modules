@@ -288,7 +288,7 @@ static void drv_host_read(
 	}
 
 	WCN_DBG(FM_DBG | CHIP, "read [0x%08x]=[0x%08x]\n",
-		new_addr, addr, *data);
+		new_addr, *data);
 }
 
 static void drv_host_write(
