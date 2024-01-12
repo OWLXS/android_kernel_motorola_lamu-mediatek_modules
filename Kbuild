@@ -63,13 +63,12 @@ $(MODULE_NAME)-objs += connfem_subsys_common.o
 $(MODULE_NAME)-objs += connfem_cfg.o
 
 INTERNAL_PATH := $(wildcard $(TOP)/vendor/mediatek/internal/connfem_enable)
-INTERNAL_PATH += $(wildcard $(TOP)/vendor/mediatek/kernel_modules/connectivity/connfem_internal/connfem_enable)
 
 ifneq ($(INTERNAL_PATH),)
     $(info ConnFem: MTK internal load)
     $(MODULE_NAME)-objs += connfem_internal.o
 else
-    $(info ConnFem: Customer load)
+    $(info ConnFem: Run time check load)
 endif
 
 

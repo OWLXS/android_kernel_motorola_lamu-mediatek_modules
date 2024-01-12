@@ -11,6 +11,7 @@
 #include <linux/cdev.h>
 #include <linux/uaccess.h>
 #include <linux/fs.h>
+#include <linux/firmware.h>
 #include "connfem.h"
 
 #if (CONNFEM_TEST_ENABLED == 1)
@@ -146,12 +147,21 @@ static const struct file_operations connfem_dev_fops = {
 static unsigned int connfem_major;
 static unsigned int epa_elna_hwid = CFM_PARAM_EPAELNA_HWID_INVALID;
 static char *config_file = "connfem.cfg";
+static char *internal_file = "connfem_internal";
 
 /*******************************************************************************
  *			      F U N C T I O N S
  ******************************************************************************/
 bool __weak connfem_is_internal(void)
 {
+	const struct firmware *data = NULL;
+
+	if (request_firmware(&data, internal_file, NULL) == 0) {
+		release_firmware(data);
+		return true;
+	}
+
+	release_firmware(data);
 	return false;
 }
 

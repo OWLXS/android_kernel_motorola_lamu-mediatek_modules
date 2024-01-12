@@ -20,7 +20,5 @@ define_mgk_ko(
         "**/*.h",
         "Kbuild",
         "Makefile",
-    ]) + [
-         "//vendor/mediatek/kernel_modules/connectivity/connfem_internal:sources",
-    ],
+    ])
 )
