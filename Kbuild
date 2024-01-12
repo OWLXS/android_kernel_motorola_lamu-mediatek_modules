@@ -1,6 +1,14 @@
 ###############################################################################
 # Necessary Check
 ###############################################################################
+# Support GKI mixed build
+ifeq ($(DEVICE_MODULES_PATH),)
+DEVICE_MODULES_PATH = $(srctree)
+else
+LINUXINCLUDE := $(DEVCIE_MODULES_INCLUDE) $(LINUXINCLUDE)
+TOP := $(srctree)/..
+endif
+
 ifneq ($(KERNEL_OUT),)
     ccflags-y += -imacros $(KERNEL_OUT)/include/generated/autoconf.h
 endif
