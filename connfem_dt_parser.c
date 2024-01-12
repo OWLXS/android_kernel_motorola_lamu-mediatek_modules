@@ -1151,12 +1151,14 @@ static int cfm_dt_epaelna_pctl_state_get(
 			fem_info->part_name[CONNFEM_PORT_WFA]);
 		return -EINVAL;
 	}
+	if (NULL != of_get_child_by_name(dn, name)) {
+		memcpy(pstate->name, name, sizeof(name));
+	}
 
 	err = cfm_dt_epaelna_pctl_state_find(dn, name, &index);
 	if (err < 0)
 		return err;	/* -ENOENT, -EINVAL */
 
-	memcpy(pstate->name, name, sizeof(name));
 	pstate->index = index;
 	return 0;
 }
