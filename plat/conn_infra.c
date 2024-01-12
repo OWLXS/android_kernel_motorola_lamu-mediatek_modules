@@ -47,15 +47,18 @@ static int drv_sys_spi_read(
 	struct fm_spi_interface *si, unsigned int subsystem,
 	unsigned int addr, unsigned int *data)
 {
-	WCN_DBG(FM_DBG | CHIP, "[0x%08x]=[0x%08x]\n", addr, *data);
-	return conninfra_spi_read(subsystem, addr, data);
+	int ret;
+
+	ret = conninfra_spi_read(subsystem, addr, data);
+	WCN_DBG(FM_DBG | CHIP, "SUB[%u] [0x%08x]=[0x%08x]\n", subsystem, addr, *data);
+	return ret;
 }
 
 static int drv_sys_spi_write(
 	struct fm_spi_interface *si, unsigned int subsystem,
 	unsigned int addr, unsigned int data)
 {
-	WCN_DBG(FM_DBG | CHIP, "[0x%08x]=[0x%08x]\n", addr, data);
+	WCN_DBG(FM_DBG | CHIP, "SUB[%u] [0x%08x]=[0x%08x]\n", subsystem, addr, data);
 	return conninfra_spi_write(subsystem, addr, data);
 }
 #else /* CFG_FM_CONNAC2 */
@@ -1456,7 +1459,7 @@ static unsigned char drv_get_top_index(void)
 
 static unsigned int drv_get_get_adie(void)
 {
-	return 0x6635;
+	return conninfra_get_ic_info(CONNSYS_ADIE_CHIPID);
 }
 
 #if CFG_FM_CONNAC2
@@ -1895,6 +1898,8 @@ static void register_drv_ops_init(void)
 	ei->get_hw_version = drv_get_hw_version;
 	ei->get_top_index = drv_get_top_index;
 	ei->get_get_adie = drv_get_get_adie;
+
+	WCN_DBG(FM_NTC | CHIP, "adie=0x%x\n", drv_get_get_adie());
 
 #if CFG_FM_CONNAC2
 	ei->enable_eint = drv_enable_eint;
