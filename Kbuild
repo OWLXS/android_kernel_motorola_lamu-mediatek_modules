@@ -11,12 +11,20 @@
 # GNU General Public License for more details.
 #
 
-all:
-	$(MAKE) -C $(KERNEL_SRC) M=$(M) modules $(KBUILD_OPTIONS)
+obj-m += udc_lib.o
 
-modules_install:
-	$(MAKE) M=$(M) -C $(KERNEL_SRC) modules_install
+udc_lib-y += \
+	adler32.o \
+	crc32.o \
+	zutil.o \
+	deflate.o \
+	trees.o \
+	udc_lib_main.o
 
-clean:
-	$(MAKE) -C $(KERNEL_SRC) M=$(M) clean
+ccflags-y += \
+	-DZ_SOLO
+
+ccflags-y += \
+	-I$(DEVICE_MODULES_PATH)/drivers/misc/mediatek/eccci/udc \
+	-I$(DEVICE_MODULES_PATH)/drivers/misc/mediatek/eccci/udc/udc_lib_inc
 

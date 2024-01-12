@@ -10,13 +10,16 @@
 #include "zlib.h"
 #include "udc.h"
 
+#if IS_ENABLED(CONFIG_MTK_ECCCI_DRIVER)
 extern int register_udc_functions(unsigned int id, void *f);
+#endif
 
 static int __init udc_lib_mod_init(void)
 {
 	int ret = 0;
 
 	pr_notice("udc lib init\n");
+#if IS_ENABLED(CONFIG_MTK_ECCCI_DRIVER)
 	register_udc_functions(ID_deflateInit2,deflateInit2_);
 	register_udc_functions(ID_deflateSetDict,deflateSetDictionary);
 	register_udc_functions(ID_deflateEnd,deflateEnd);
@@ -26,6 +29,7 @@ static int __init udc_lib_mod_init(void)
 	register_udc_functions(ID_udc_chksum,udcChecksum);
 	register_udc_functions(ID_udc_QueryPara,udcQueryParam);
 	register_udc_functions(ID_udc_GetCmpLen,udcGetCmpLen);
+#endif
 
 	return ret;
 }
