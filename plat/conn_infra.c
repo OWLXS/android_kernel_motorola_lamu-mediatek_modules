@@ -1756,7 +1756,8 @@ int fm_register_irq(struct platform_driver *drv, unsigned int irq_num)
 	return ret;
 }
 
-int fm_register_plat(unsigned int family_id, unsigned int conn_id)
+int fm_register_plat(unsigned int host_id, unsigned int family_id,
+	unsigned int conn_id)
 {
 	struct fm_ext_interface *ei = &fm_wcn_ops.ei;
 	int i = 0;
@@ -1881,7 +1882,9 @@ int fm_register_plat(unsigned int family_id, unsigned int conn_id)
 		ei->reg_map[FM_CTRL] =
 			ei->base_addr[CONN_RF_SPI_MST_REG] + 0x00C;
 
-		return smc_drv_ops_overwrite();
+		/* no need to do it since mt6878 */
+		if (host_id == 0x6886 || host_id == 0x6897)
+			return smc_drv_ops_overwrite();
 	}
 
 	return drv_do_ioremap();

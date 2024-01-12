@@ -1616,7 +1616,7 @@ static signed int mt_fm_probe(struct platform_device *pdev)
 		if (ret)
 			return ret;
 
-		ret = fm_register_plat(family_id, conn_id);
+		ret = fm_register_plat(host_id, family_id, conn_id);
 		if (ret)
 			return ret;
 	}
