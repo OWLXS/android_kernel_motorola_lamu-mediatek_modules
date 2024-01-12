@@ -131,7 +131,7 @@ static const struct file_operations connfem_dev_fops = {
 /* Module Parameters */
 static unsigned int connfem_major;
 static unsigned int epa_elna_hwid = CFM_PARAM_EPAELNA_HWID_INVALID;
-static char *config_file;
+static char *config_file = "connfem.cfg";
 
 /*******************************************************************************
  *			      F U N C T I O N S
