@@ -18,7 +18,11 @@
 #define CFM_DT_PROP_PARTS		"parts"
 #define CFM_DT_PROP_BT_PARTS	"bt-parts","bt_parts",NULL
 #define CFM_DT_NODE_HWID		"hwid"
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 2, 0)
+#define CFM_DT_PROP_GPIO		""
+#else
 #define CFM_DT_PROP_GPIO		"gpio"
+#endif
 #define CFM_DT_NODE_PMIC		"pmic"
 #define CFM_DT_PROP_CHANNEL_NAME		"channel-name","channel_name",NULL
 #define CFM_DT_PROP_IO_CHANNEL_NAMES	"io-channel-names"
