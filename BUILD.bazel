@@ -15,4 +15,12 @@ filegroup(
 
 define_mgk_ko(
     name = "connfem",
+    srcs = glob([
+        "*.c",
+        "**/*.h",
+        "Kbuild",
+        "Makefile",
+    ]) + [
+         "//vendor/mediatek/kernel_modules/connectivity/connfem_internal:sources",
+    ],
 )
