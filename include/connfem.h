@@ -62,6 +62,8 @@
 #define CFG_HWID_PMIC_SUPPORT 1
 #endif
 
+#define CONNFEM_HW_NAME_SIZE		64
+
 /* Reduce the effort of porting, the following macros will be filled
  * in struct connfem_epa_context and struct connfem_sku_context.
  */
