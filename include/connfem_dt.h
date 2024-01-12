@@ -10,17 +10,17 @@
  *				M A C R O S
  ******************************************************************************/
 /* ConnFem Device Tree Node/Parameter Names */
-#define CFM_DT_NODE_EPAELNA		"epa_elna"
-#define CFM_DT_NODE_EPAELNA_MTK	"epa_elna_mtk"
+#define CFM_DT_NODE_EPAELNA		"epa-elna","epa_elna",NULL
+#define CFM_DT_NODE_EPAELNA_MTK	"epa-elna-mtk","epa_elna_mtk",NULL
 #define CFM_DT_NODE_COMMON		"common"
 #define CFM_DT_NODE_WIFI		"wifi"
 #define CFM_DT_NODE_BT			"bt"
 #define CFM_DT_PROP_PARTS		"parts"
-#define CFM_DT_PROP_BT_PARTS	"bt_parts"
+#define CFM_DT_PROP_BT_PARTS	"bt-parts","bt_parts",NULL
 #define CFM_DT_NODE_HWID		"hwid"
 #define CFM_DT_PROP_GPIO		"gpio"
 #define CFM_DT_NODE_PMIC		"pmic"
-#define CFM_DT_PROP_CHANNEL_NAME		"channel_name"
+#define CFM_DT_PROP_CHANNEL_NAME		"channel-name","channel_name",NULL
 #define CFM_DT_PROP_IO_CHANNEL_NAMES	"io-channel-names"
 #define CFM_DT_PROP_RANGE_PREFIX	"range-"
 #define CFM_DT_PROP_FLAGS_PREFIX	"flags-"
@@ -31,7 +31,8 @@
 
 #define CFM_DT_PARTS_NOFEM		"nofem"
 
-/* format: 'GBandPart_ABandPart' */
+/* format: 'GBandPart-ABandPart' or 'GBandPart_ABandPart' */
+#define CFM_DT_PCTL_STATE_SYMBOL	'-','_'
 #define CFM_DT_PCTL_STATE_NAME_SIZE	\
 			((CONNFEM_PART_NAME_SIZE * CONNFEM_PORT_NUM) + \
 			 (CONNFEM_PORT_NUM - 1) /* Number of _*/ \

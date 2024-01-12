@@ -60,7 +60,7 @@ static int cfm_dt_epaelna_hwid_pmic_read(struct platform_device *pdev,
 
 static int cfm_dt_epaelna_parts_parse(
 		struct device_node *np,
-		char *prop_name,
+		const char *prop_name,
 		unsigned int hwid,
 		struct device_node **parts_np);
 
@@ -82,6 +82,12 @@ static int cfm_dt_epaelna_pctl_state_find(
 		const struct device_node *dn,
 		char *state_name,
 		unsigned int *state_index);
+
+static int cfm_dt_epaelna_pctl_state_get(
+		struct device_node *dn,
+		struct connfem_epaelna_fem_info *fem_info,
+		char symbol,
+		struct cfm_dt_epaelna_pctl_state_context *pstate);
 
 static bool cfm_dt_epaelna_pctl_exists(
 		struct cfm_dt_epaelna_pctl_context *pctl);
@@ -115,6 +121,12 @@ static int cfm_dt_epaelna_pin_mapping_get(
 		struct cfm_dt_epaelna_pctl_state_context *pstate,
 		struct cfm_epaelna_pin_config *result_out);
 
+static struct device_node* cfm_dt_child_find (
+		struct device_node *dn, ...);
+
+static struct property* cfm_dt_prop_find (
+		struct device_node *dn, ...);
+
 /*******************************************************************************
  *			    P U B L I C   D A T A
  ******************************************************************************/
@@ -135,24 +147,19 @@ int cfm_dt_parse(struct connfem_context *cfm)
 	struct device_node *np = NULL;
 
 	if (connfem_is_internal()) {
-		np = of_get_child_by_name(dn, CFM_DT_NODE_EPAELNA_MTK);
-		if (!np) {
-			pr_info("Missing '%s', trying '%s'",
-				CFM_DT_NODE_EPAELNA_MTK,
-				CFM_DT_NODE_EPAELNA);
-			np = of_get_child_by_name(dn, CFM_DT_NODE_EPAELNA);
-		}
-	} else {
-		np = of_get_child_by_name(dn, CFM_DT_NODE_EPAELNA);
+		np = cfm_dt_child_find(dn, CFM_DT_NODE_EPAELNA_MTK);
+	}
+
+	if (!np) {
+		np = cfm_dt_child_find(dn, CFM_DT_NODE_EPAELNA);
 	}
 
 	if (np) {
-		pr_info("Selecting '%s'", np->name);
 		err = cfm_dt_epaelna_parse(np, cfm);
 		of_node_put(np);
 		np = NULL;
 	} else {
-		pr_info("Missing '%s'", CFM_DT_NODE_EPAELNA);
+		pr_info("Missing epa elna node");
 	}
 
 	return err;
@@ -249,6 +256,7 @@ static int cfm_dt_epaelna_parse(struct device_node *np,
 	struct cfm_dt_epaelna_context *dt = &cfm->dt.epaelna;
 	struct cfm_epaelna_config *result = &cfm->epaelna;
 	unsigned int hwid;
+	struct property *parts;
 
 	/* Initialize */
 	memset(dt, 0, sizeof(*dt));
@@ -285,8 +293,14 @@ static int cfm_dt_epaelna_parse(struct device_node *np,
 	}
 
 	/* Parse bt_parts property */
-	err = cfm_dt_epaelna_parts_parse(np, CFM_DT_PROP_BT_PARTS, dt->hwid,
-			dt->bt_parts_np);
+	parts = cfm_dt_prop_find(np, CFM_DT_PROP_BT_PARTS);
+	if (!parts) {
+		err = -EINVAL;
+	} else {
+		err = cfm_dt_epaelna_parts_parse(np, parts->name, 
+				dt->hwid, dt->bt_parts_np);
+	}
+
 	if (err == 0) {
 		/* Populate BT dedicated FEM info */
 		err = cfm_epaelna_feminfo_populate(dt->bt_parts_np,
@@ -569,33 +583,36 @@ static int cfm_dt_epaelna_hwid_pmic_parse(
 	unsigned int hwid = 0;
 	unsigned int nbits = 0;
 	unsigned int hwid_tmp = 0;
+	struct property *prop_ch_name;
 
 	/* Get node of pmic if it is exists */
 	pmic_node = of_get_child_by_name(np, CFM_DT_NODE_PMIC);
 	if (!pmic_node)
 		return -ENOENT;
 
-	/* Retrieve name number from pmic node */
-	cnt = of_property_count_strings(pmic_node, CFM_DT_PROP_CHANNEL_NAME);
-	if (cnt < 0) {
-		pr_info("[WARN] Missing '%s', cnt: %d",
-			CFM_DT_PROP_CHANNEL_NAME,
-			cnt);
+	prop_ch_name = cfm_dt_prop_find(pmic_node, CFM_DT_PROP_CHANNEL_NAME);
+	if (!prop_ch_name) {
+		pr_info("[WARN] Fail to parse prop ch name");
 		return -EINVAL;
-	} else if (cnt == 0) {
-		return -ENOENT;
+	}
+
+	/* Retrieve name number from pmic node */
+	cnt = of_property_count_strings(pmic_node, prop_ch_name->name);
+	if (cnt <= 0) {
+		pr_info("[WARN] Missing prop ch name, cnt: %d",	cnt);
+		return -EINVAL;
 	}
 
 	/* Retrieve hardware ID based on PMIC PIN(s) value */
 	for (i = 0; i < cnt; i++) {
 		/* Retrieve name */
 		err = of_property_read_string_index(pmic_node,
-				CFM_DT_PROP_CHANNEL_NAME,
+				prop_ch_name->name,
 				i,
 				&channel_name);
 		if (err < 0) {
 			pr_info("[WARN] Invalid '%s' property: idx(%d)err(%d)",
-				CFM_DT_PROP_CHANNEL_NAME,
+				prop_ch_name->name,
 				i,
 				err);
 			return -EINVAL;
@@ -819,7 +836,7 @@ static int cfm_dt_epaelna_hwid_pmic_read(
  */
 static int cfm_dt_epaelna_parts_parse(
 		struct device_node *np,
-		char *prop_name,
+		const char *prop_name,
 		unsigned int hwid,
 		struct device_node **parts_np_out)
 {
@@ -958,26 +975,21 @@ static int cfm_dt_epaelna_pctl_state_parse(
 {
 	int err = 0;
 	int i, c;
+	char list[] = {CFM_DT_PCTL_STATE_SYMBOL};
+	int len = sizeof(list) / sizeof(char);
 
-	/* Locate pinctrl state index */
-	c = snprintf(pstate->name, sizeof(pstate->name),
-		     "%s_%s",
-		     fem_info->part_name[CONNFEM_PORT_WFG],
-		     fem_info->part_name[CONNFEM_PORT_WFA]);
-	if (c < 0 || c >= sizeof(pstate->name)) {
-		pr_info("[WARN] pinctrl state name error %d, sz %u, '%s'_'%s'",
-			c,
-			(unsigned int)sizeof(pstate->name),
-			fem_info->part_name[CONNFEM_PORT_WFG],
-			fem_info->part_name[CONNFEM_PORT_WFA]);
-		return -EINVAL;
+	/* Find mapping symbol in pinctrl state */
+	for (i = 0; i < len; i++) {
+		err = cfm_dt_epaelna_pctl_state_get(dn, fem_info, list[i], pstate);
+		if (err == 0) {
+			break;
+		}
 	}
 
-	err = cfm_dt_epaelna_pctl_state_find(dn,
-					     pstate->name,
-					     &pstate->index);
-	if (err < 0)
+	if (err < 0) {
+		pr_info("[WARN] pctl state name not found, err %d", err);
 		return err;	/* -ENOENT, -EINVAL */
+	}
 
 	/* Collect pinctrl nodes */
 	c = snprintf(pstate->prop_name, sizeof(pstate->prop_name),
@@ -1067,6 +1079,55 @@ static int cfm_dt_epaelna_pctl_state_find(
 	}
 
 	*state_index = i;
+	return 0;
+}
+
+/**
+ * cfm_dt_epaelna_pctl_state_get
+ *	Get the pinctrl state's name and index with matched symbol
+ *
+ * Parameters
+ *	np	   : Pointer to the node containing 'pinctrl-names' prop.
+ *	symbol : Symbol in state name, ex "_" or "-"
+ *
+ * Return value
+ *	0	: Success, state name and index will contain valid result
+ *	-ENOENT : State could not be found
+ *	-EINVAL : Error
+ *
+ */
+static int cfm_dt_epaelna_pctl_state_get(
+		struct device_node *dn,
+		struct connfem_epaelna_fem_info *fem_info,
+		char symbol,
+		struct cfm_dt_epaelna_pctl_state_context *pstate)
+{
+	int err = 0;
+	int index, c;
+	char name[CFM_DT_PCTL_STATE_NAME_SIZE];
+
+	/* Locate pinctrl state index */
+	c = snprintf(name, sizeof(name),
+			"%s%c%s",
+			fem_info->part_name[CONNFEM_PORT_WFG],
+			symbol,
+			fem_info->part_name[CONNFEM_PORT_WFA]);
+	if (c < 0 || c >= sizeof(name)) {
+		pr_info("[WARN] pinctrl state name error %d, sz %u, '%s'%c'%s'",
+			c,
+			(unsigned int)sizeof(name),
+			fem_info->part_name[CONNFEM_PORT_WFG],
+			symbol,
+			fem_info->part_name[CONNFEM_PORT_WFA]);
+		return -EINVAL;
+	}
+
+	err = cfm_dt_epaelna_pctl_state_find(dn, name, &index);
+	if (err < 0)
+		return err;	/* -ENOENT, -EINVAL */
+
+	memcpy(pstate->name, name, sizeof(name));
+	pstate->index = index;
 	return 0;
 }
 
@@ -1464,3 +1525,71 @@ static int cfm_dt_epaelna_pin_mapping_get(
 	return 0;
 }
 
+/**
+ * cfm_dt_child_find
+ * 1. First to find the valid name in DTS.
+ * 2. Try to find legacy name to backward compatible.
+ *
+ * Parameters
+ * dn : (IN) Pointer to parent device node.
+ * name_list: (IN) Support name list.
+ * out_name : (OUTPUT) Return the mapping name.
+ *
+ * Return value
+ * 0 : Success, node/property name is existed.
+ * -EINVAL : Fail to find the mapping name.
+ *
+ */
+static struct device_node* cfm_dt_child_find (
+		struct device_node *dn, ...)
+{
+	char *idx;
+	struct device_node *np;
+	va_list args;
+
+	va_start(args, dn);
+	while ((idx = va_arg(args, char *)) != NULL) {
+		if ((np = of_get_child_by_name(dn, idx)) != NULL) {
+			pr_info("Find node '%s'", np->name);
+			va_end(args);
+			return np;
+		}
+	}
+
+	va_end(args);
+	return NULL;
+}
+
+/**
+ * cfm_dt_prop_find
+ * 1. First to find the valid prop name in DTS.
+ * 2. Try to find legacy prop name to backward compatible.
+ *
+ * Parameters
+ * dn : (IN) Pointer to parent device node.
+ * name_list: (IN) Support name list.
+ * out_name : (OUTPUT) Return the mapping name.
+ *
+ * Return value
+ * NULL : Fail to find the mapping name.
+ *
+ */
+static struct property* cfm_dt_prop_find (
+		struct device_node *dn, ...)
+{
+	char *idx;
+	struct property *np;
+	va_list args;
+
+	va_start(args, dn);
+	while ((idx = va_arg(args, char *)) != NULL) {
+		if ((np = of_find_property(dn, idx, NULL)) != NULL) {
+			pr_info("Find property '%s'", np->name);
+			va_end(args);
+			return np;
+		}
+	}
+
+	va_end(args);
+	return NULL;
+}
