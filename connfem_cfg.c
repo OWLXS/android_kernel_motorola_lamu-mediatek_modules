@@ -37,7 +37,7 @@ enum CONNFEM_CFG {
 struct cfm_cfg_tlv {
 	unsigned short tag;
 	unsigned short length;
-	unsigned char data[0];
+	unsigned char data[];
 };
 
 /*******************************************************************************
