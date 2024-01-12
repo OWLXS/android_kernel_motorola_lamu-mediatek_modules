@@ -1456,7 +1456,11 @@ static signed int fm_cdev_setup(struct fm *fm)
 		return ret;
 	}
 #ifndef FM_DEV_STATIC_ALLOC
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0)
+	plat->cls = class_create(FM_NAME);
+#else
 	plat->cls = class_create(THIS_MODULE, FM_NAME);
+#endif
 
 	if (IS_ERR(plat->cls)) {
 		ret = PTR_ERR(plat->cls);
