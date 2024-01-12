@@ -116,5 +116,6 @@ struct connfem_context;
  ******************************************************************************/
 extern int cfm_dt_parse(struct connfem_context *cfm);
 extern void cfm_dt_free(struct cfm_dt_context *dt);
+extern int cfm_dt_cfg_ext(struct connfem_context *cfm);
 
 #endif /* __CONNFEM_DT_H__ */

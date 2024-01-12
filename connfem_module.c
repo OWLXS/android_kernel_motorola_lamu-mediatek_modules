@@ -568,7 +568,17 @@ static int connfem_plat_probe(struct platform_device *pdev)
 	int err = 0;
 
 	if (connfem_ctx && connfem_ctx->epaelna.available == true) {
-		pr_info("Config file parse done, no need to parse from device tree");
+		pr_info("Config file parse done, check platform device data");
+
+		/* To operate platform device, device tree data must be used. 
+		 * For example, kenerl provide pinctrl API to apply GPIO PINMUX.
+		 * The parameters are get from platform device and device tree.
+		 * Hence, beside config file, the device tree should also be checked.
+		 */
+		if (of_device_get_match_data(&pdev->dev)) {
+			connfem_ctx->pdev = pdev;
+			cfm_dt_cfg_ext(connfem_ctx);
+		}
 		goto probe_end;
 	}
 

@@ -121,6 +121,16 @@ static int cfm_dt_epaelna_pin_mapping_get(
 		struct cfm_dt_epaelna_pctl_state_context *pstate,
 		struct cfm_epaelna_pin_config *result_out);
 
+static int cfm_dt_cfg_apply_pctl(
+		struct platform_device *pdev,
+		struct connfem_epaelna_fem_info *fem_info,
+		struct cfm_epaelna_pin_config *pin_cfg,
+		struct cfm_dt_epaelna_pctl_context *pctl);
+
+static int cfm_dt_cfg_is_antsel_match(
+		struct connfem_epaelna_pin_info *dp_info,
+		struct connfem_epaelna_pin_info *cp_info);
+
 static struct device_node* cfm_dt_child_find (
 		struct device_node *dn, ...);
 
@@ -168,6 +178,26 @@ int cfm_dt_parse(struct connfem_context *cfm)
 void cfm_dt_free(struct cfm_dt_context *dt)
 {
 	cfm_dt_epaelna_free(&dt->epaelna, true);
+}
+
+int cfm_dt_cfg_ext(struct connfem_context *cfm)
+{
+	struct platform_device *pdev = cfm->pdev;
+	struct cfm_epaelna_config *cfg = &cfm->epaelna;
+	struct cfm_dt_epaelna_context *dt = &cfm->dt.epaelna;
+
+	/* Apply pinctrl from device tree */
+	if (0 > cfm_dt_cfg_apply_pctl(pdev, &cfg->fem_info,
+				&cfg->pin_cfg, &dt->pctl)) {
+		pr_info("Skip applying pinctrl");
+	}
+
+	if (0 > cfm_dt_cfg_apply_pctl(pdev, &cfg->bt_fem_info,
+				&cfg->bt_pin_cfg, &dt->bt_pctl)) {
+		pr_info("Skip applying bt pinctrl");
+	}
+
+	return 0;
 }
 
 static void cfm_dt_epaelna_free(struct cfm_dt_epaelna_context *dt,
@@ -1521,6 +1551,103 @@ static int cfm_dt_epaelna_pin_mapping_get(
 	memcpy(result_out, &result, sizeof(result));
 
 	cfm_epaelna_pininfo_dump(&result_out->pin_info);
+
+	return 0;
+}
+
+/**
+ * cfm_dt_cfg_apply_pctl
+ *	The main purpose is to apply pctl PINMUX
+ *
+ * Parameters
+ *	pdev		: Pointer to the platform device
+ *
+ * Return value
+ *	0	: Success, output parameter will be valid
+ *	-EINVAL : Error
+ *
+ */
+static int cfm_dt_cfg_apply_pctl(
+		struct platform_device *pdev,
+		struct connfem_epaelna_fem_info *fem_info,
+		struct cfm_epaelna_pin_config *pin_cfg,
+		struct cfm_dt_epaelna_pctl_context *pctl)
+{
+	int err = 0;
+	struct device_node *dn = pdev->dev.of_node;
+	struct cfm_epaelna_pin_config dt_pin;
+
+	/* Parse pinctrl state property */
+	err = cfm_dt_epaelna_pctl_state_parse(dn, fem_info, &pctl->state);
+
+	/* For combo chip, pin mapping should be applied ConnFem cfg */
+	if (err < 0) {
+		pr_info("Skip applying GPIO PINMUX, err %d", err);
+		return err;
+	}
+
+	/* Apply PINMUX only if device tree successfully parsed */
+	if (cfm_dt_epaelna_pctl_exists(pctl)) {
+		if (0 > cfm_dt_epaelna_pctl_walk(pctl, &dt_pin)) {
+			return -EINVAL;
+		}
+
+		/*
+		* Because PINMUX can not be setting by config file,
+		* make sure the APSoC Antsel/eFEM PIN mapping is the
+		* same with DTS and config file
+		*/
+		if (0 > cfm_dt_cfg_is_antsel_match(&dt_pin.pin_info,
+						&pin_cfg->pin_info)) {
+			return -EINVAL;
+		}
+
+		if (0 > cfm_dt_epaelna_pctl_pinmux_apply(pdev, pctl)) {
+			return -EINVAL;
+		}
+	}
+
+	return err;
+}
+
+/**
+ * cfm_dt_cfg_is_antsel_match
+ * Check the antsel pin in DTS is the same with config.
+ *
+ * Parameters
+ * dp_info : (IN) Pointer to DTS pin info.
+ * cp_info: (IN) Pointer to Config pin info.
+ *
+ * Return value
+ * 0 : Success, node/property name is existed.
+ * -EINVAL : Fail to find the mapping name.
+ *
+ */
+static int cfm_dt_cfg_is_antsel_match(
+		struct connfem_epaelna_pin_info *dp_info,
+		struct connfem_epaelna_pin_info *cp_info)
+{
+	int i, j;
+	struct connfem_epaelna_pin *dt_pin = dp_info->pin;
+	struct connfem_epaelna_pin *cfg_pin = cp_info->pin;
+
+	if (dp_info->count != cp_info->count) {
+		pr_info("The pin_info count is not the same");
+		return -EINVAL;
+	}
+
+	for (i = 0; i < dp_info->count; i++) {
+		for (j = 0; j < cp_info->count; j++) {
+			if (dt_pin[i].antsel == cfg_pin[j].antsel) {
+				break;
+			}
+		}
+
+		if (j == cp_info->count) {
+			pr_info("Miss DTS antsel pin %d in cfg file", dt_pin[i].antsel);
+			return -EINVAL;
+		}
+	}
 
 	return 0;
 }
