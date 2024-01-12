@@ -99,6 +99,10 @@ static const struct of_device_id connfem_of_ids[] = {
 		.data = (void *)(uintptr_t)0x6989
 	},
 	{
+		.compatible = "mediatek,mt6878-connfem",
+		.data = (void *)(uintptr_t)0x6878
+	},
+	{
 		.compatible = "mediatek,connfem",
 		.data = (void *)(uintptr_t)0x0
 	},
