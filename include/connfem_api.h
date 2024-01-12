@@ -77,6 +77,7 @@ struct connfem_epaelna_flags_common {
 	unsigned char fe_main_bt_share_lp2g;
 	unsigned char fe_conn_spdt;
 	unsigned char fe_reserved;
+	unsigned char bd_type;
 };
 
 struct connfem_epaelna_flags_wifi {

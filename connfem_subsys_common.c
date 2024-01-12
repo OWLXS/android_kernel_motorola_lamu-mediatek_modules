@@ -46,6 +46,7 @@ static struct connfem_epaelna_flag_tbl_entry cm_epaelna_flags_map[] = {
 	{"fe-main-bt-share-lp2g",	&cm_epaelna_flags.fe_main_bt_share_lp2g},
 	{"fe-conn-spdt",	&cm_epaelna_flags.fe_conn_spdt},
 	{"fe-reserved",	&cm_epaelna_flags.fe_reserved},
+	{"bd-type",	&cm_epaelna_flags.bd_type},
 	{NULL, NULL}
 };
 

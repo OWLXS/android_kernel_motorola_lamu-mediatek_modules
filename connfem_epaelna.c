@@ -847,6 +847,7 @@ void cfm_epaelna_flags_obj_dump(enum connfem_subsys subsys,
 		pr_info("CmFlags.fe_main_bt_share_lp2g: 0x%02x", cm_flags->fe_main_bt_share_lp2g);
 		pr_info("CmFlags.fe_conn_spdt: 0x%02x", cm_flags->fe_conn_spdt);
 		pr_info("CmFlags.fe_reserved: 0x%02x", cm_flags->fe_reserved);
+		pr_info("CmFlags.bd_type: 0x%02x", cm_flags->bd_type);
 		break;
 
 	case CONNFEM_SUBSYS_WIFI:
