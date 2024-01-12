@@ -133,7 +133,7 @@ signed int fm_cmd_tx(unsigned char *buf, unsigned short len, signed int mask, si
 	struct task_struct *task = current;
 	struct fm_trace_t trace;
 
-	if ((buf == NULL) || (len < 0) || (mask == 0)
+	if ((buf == NULL) || (mask == 0)
 	    || (cnt > SW_RETRY_CNT_MAX) || (timeout > SW_WAIT_TIMEOUT_MAX)) {
 		WCN_DBG(FM_ERR | LINK, "cmd tx, invalid para\n");
 		return -FM_EPARA;
@@ -207,6 +207,11 @@ signed int fm_event_parser(signed int(*rds_parser) (struct rds_rx_t *, signed in
 		rx_buf[1], rx_buf[2], rx_buf[3]);
 
 	while (i < len) {
+		if (i < 0) {
+			WCN_DBG(FM_DBG | LINK, "invalid i:%d, len:%d\n", i, len);
+			break;
+		}
+
 		ch = rx_buf[i];
 
 		switch (state) {
