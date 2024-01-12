@@ -48,6 +48,8 @@
 #define CFM_DT_PROP_TRUTH_TABLE		"truth-table"
 #define CFM_DT_PROP_PINS		"pins"
 #define CFM_DT_PROP_HW_NAMES		"hw-names"
+/* #gpio-cells will be defined in pio node of mtXXXX.dts */
+#define CFM_DT_PROP_GPIO_CELLS		"#gpio-cells"
 
 #define CFM_DT_PARTS_NOFEM		"nofem"
 

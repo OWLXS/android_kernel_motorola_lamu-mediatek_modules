@@ -38,16 +38,9 @@ static int cfm_dt_epaelna_hwid_parse(struct device_node *np,
 		struct platform_device *pdev,
 		unsigned int *hwid);
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 2, 0)
-static int cfm_dt_epaelna_hwid_gpio_parse(struct device *dev,
-		struct device_node *np,
-		unsigned int *hwid_out,
-		unsigned int *nbits_out);
-#else
 static int cfm_dt_epaelna_hwid_gpio_parse(struct device_node *np,
 		unsigned int *hwid_out,
 		unsigned int *nbits_out);
-#endif
 
 #if (CFG_HWID_PMIC_SUPPORT == 1)
 static int cfm_dt_epaelna_hwid_pmic_parse(struct device_node *np,
@@ -572,12 +565,7 @@ static int cfm_dt_epaelna_hwid_parse(struct device_node *np,
 		return -ENOENT;
 
 	/* Retrieve hwid by gpio */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 2, 0)
-	ret = cfm_dt_epaelna_hwid_gpio_parse(&pdev->dev, np_hwid,
-			&hwid_tmp, &bits);
-#else
 	ret = cfm_dt_epaelna_hwid_gpio_parse(np_hwid, &hwid_tmp, &bits);
-#endif
 	if (ret < 0 && ret != -ENOENT) {
 		return -EINVAL;
 	} else if (ret != -ENOENT) {
@@ -614,7 +602,6 @@ static int cfm_dt_epaelna_hwid_parse(struct device_node *np,
  *	Parses hwid value based on GPIO property.
  *
  * Parameters
- * 	dev	: device of the node if kernel >= 6.2
  *	np	: Pointer to the node containing the 'gpio' property.
  *	hwid_out	: Output parameter storing the hwid calculated
  *				by gpio property
@@ -627,27 +614,21 @@ static int cfm_dt_epaelna_hwid_parse(struct device_node *np,
  *	-EINVAL : Failed to parse gpio property
  *
  */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 2, 0)
-static int cfm_dt_epaelna_hwid_gpio_parse(struct device *dev,
-				     struct device_node *np,
-				     unsigned int *hwid_out,
-				     unsigned int *nbits_out)
-#else
 static int cfm_dt_epaelna_hwid_gpio_parse(struct device_node *np,
 				     unsigned int *hwid_out,
 				     unsigned int *nbits_out)
-#endif
 {
 	int i, cnt = 0, gpio_num;
 	unsigned int hwid = 0;
 	unsigned int consumed_bits = 0;
 	unsigned int gpio_value = 0;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 2, 0)
-	cnt = gpiod_count(dev, CFM_DT_PROP_GPIO);
-#else
-	cnt = of_gpio_named_count(np, CFM_DT_PROP_GPIO);
-#endif
+	/* CFM_DT_PROP_GPIO_CELLS (#gpio-cells) is defined in mtXXXX.dts
+	 * In the normal case, it should be 2. Hence, dts needs to be set
+	 * up in the form like gpio = <&pio 132 0>;
+	 */
+	cnt = of_count_phandle_with_args(np, CFM_DT_PROP_GPIO,
+					CFM_DT_PROP_GPIO_CELLS);
 	if (cnt <= 0 && cnt != -ENOENT) {
 		pr_info("Invalid '%s' property", CFM_DT_PROP_GPIO);
 		return -EINVAL;
