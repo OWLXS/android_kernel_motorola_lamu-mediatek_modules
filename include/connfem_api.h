@@ -13,6 +13,7 @@
 #define CONNFEM_PART_NAME_SIZE		64
 #define CONNFEM_FLAG_NAME_SIZE		32
 #define CONNFEM_EPAELNA_LAA_PIN_COUNT	8
+#define CONNFEM_HW_NAME_SIZE		64
 
 /*******************************************************************************
  *			    D A T A   T Y P E S
@@ -20,6 +21,7 @@
 enum connfem_type {
 	CONNFEM_TYPE_NONE = 0,
 	CONNFEM_TYPE_EPAELNA = 1,
+	CONNFEM_TYPE_SKU = 2,
 	CONNFEM_TYPE_NUM
 };
 
@@ -78,6 +80,9 @@ struct connfem_epaelna_flags_common {
 	unsigned char fe_conn_spdt;
 	unsigned char fe_reserved;
 	unsigned char bd_type;
+	unsigned char fe_conn_dpdt_sp3t;
+	unsigned char fe_bt_wf_usage;
+	unsigned char fe_conn_spdt_2;
 };
 
 struct connfem_epaelna_flags_wifi {
@@ -85,6 +90,7 @@ struct connfem_epaelna_flags_wifi {
 	bool laa;
 	unsigned char epa_option;
 	bool only_2g;
+	unsigned char nv_attr;
 };
 
 struct connfem_epaelna_flags_bt {
@@ -92,6 +98,8 @@ struct connfem_epaelna_flags_bt {
 	bool epa_elna;
 	bool epa;
 	bool elna;
+	unsigned char efem_mode; /* 3:epa_elna, 2:epa, 1:elna, 0:bypass */
+	unsigned char rx_mode;
 };
 
 struct connfem_epaelna_flag_tbl_entry {
@@ -109,6 +117,8 @@ struct connfem_epaelna_subsys_cb {
 	struct connfem_epaelna_flag_tbl_entry*(*flags_tbl_get)(void);
 	unsigned int (*flags_cnt)(void);
 };
+
+struct connfem_sku;
 
 /*******************************************************************************
  *			    P U B L I C   D A T A
@@ -133,5 +143,11 @@ extern int connfem_epaelna_laa_get_pin_info(
 			struct connfem_epaelna_laa_pin_info *laa_pin_info);
 
 extern int connfem_epaelna_get_flags(enum connfem_subsys subsys, void *flags);
+
+extern int connfem_sku_data(const struct connfem_sku **sku);
+
+extern int connfem_sku_flag_u8(enum connfem_subsys subsys,
+			const char *name,
+			unsigned char *value);
 
 #endif /* __CONNFEM_API_H__ */
