@@ -2,16 +2,12 @@
 /*
  * Copyright (c) 2022 MediaTek Inc.
  */
+#include <linux/types.h>
 
-typedef void (*tracepoint_fp)(void *p, unsigned long long *regs, long id);
 typedef void (*heavy_fp)(int jank, int pid);
-int register_tracepoint_callback(tracepoint_fp cb);
-int unregister_tracepoint_callback(tracepoint_fp cb);
 int register_heavy_callback(heavy_fp cb);
 int unregister_heavy_callback(heavy_fp cb);
-int is_feature_enabled(unsigned int feature);
+int register_jank_ux_callback(heavy_fp cb);
+int unregister_jank_ux_callback(heavy_fp cb);
+void enable_ux_jank_detection(bool enable, const char *info);
 
-enum feature_flags {
-    FEATURE_FPSGO = 1 << 0,
-    FEATURE_SBE   = 1 << 1
-};

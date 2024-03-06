@@ -5,13 +5,54 @@
 
 #include <linux/tracepoint.h>
 #include "jank_detection_common.h"
+#include "jank_detection_common_core.h"
 
 #define MAX_CALLBACKS 100
+//extern int (*register_jank_ux_callback_fp)(heavy_fp cb);
+//extern int (*unregister_jank_ux_callback_fp)(heavy_fp cb);
+//extern void (*enable_ux_jank_detection_fp)(bool enable, const char *info);
+extern int (*fpsgo2jank_detection_register_callback_fp)(heavy_fp cb);
+extern int (*fpsgo2jank_detection_unregister_callback_fp)(heavy_fp cb);
+
 static tracepoint_fp tracepoint_callbacks[MAX_CALLBACKS] = {NULL};
 static heavy_fp heavy_callbacks[MAX_CALLBACKS] = {NULL};
+static heavy_fp jank_ux_callbacks[MAX_CALLBACKS] = {NULL};
 static struct kobject *jank_detection_kobject;
 static struct tracepoint *ktp = NULL;
 static unsigned int features = 0;
+static const char *ux_info  = NULL;
+static bool feature_status = false;
+
+int register_jank_ux_callback(heavy_fp cb) {
+    for (int i = 0; i < MAX_CALLBACKS; i++) {
+        if (jank_ux_callbacks[i] == NULL) {
+            jank_ux_callbacks[i] = cb;
+            return 0;
+        }
+    }
+    return -1;
+}
+EXPORT_SYMBOL(register_jank_ux_callback);
+
+int unregister_jank_ux_callback(heavy_fp cb) {
+    for (int i = 0; i < MAX_CALLBACKS; i++) {
+        if (jank_ux_callbacks[i] == cb) {
+            jank_ux_callbacks[i] = NULL;
+            return 0;
+        }
+    }
+    return -1;
+}
+EXPORT_SYMBOL(unregister_jank_ux_callback);
+
+void receive_jank_ux_detection(int jank, int pid) {
+  for (int i = 0; i < MAX_CALLBACKS; i++) {
+      if (jank_ux_callbacks[i] != NULL) {
+          jank_ux_callbacks[i](jank, pid);
+      }
+  }
+}
+EXPORT_SYMBOL(receive_jank_ux_detection);
 
 int register_heavy_callback(heavy_fp cb) {
     for (int i = 0; i < MAX_CALLBACKS; i++) {
@@ -71,6 +112,29 @@ int unregister_tracepoint_callback(tracepoint_fp cb) {
 }
 EXPORT_SYMBOL(unregister_tracepoint_callback);
 
+const char* get_ux_info(void) {
+    return ux_info;
+}
+EXPORT_SYMBOL(get_ux_info);
+
+static ssize_t jank_detection_store(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count);
+
+void enable_ux_jank_detection(bool enable, const char *info) {
+    if(!features){
+        if (ux_info) {
+            kfree(ux_info);
+            ux_info = NULL;
+        }
+        ux_info = kstrdup(info, GFP_KERNEL);
+    }
+    if (enable) {
+        jank_detection_store(NULL, NULL, "0x12", 0);
+    } else {
+        jank_detection_store(NULL, NULL, "0x02", 0);
+    }
+}
+EXPORT_SYMBOL(enable_ux_jank_detection);
+
 static void tracepoint_callback_func(void *p, struct pt_regs *regs, long id) {
 
   for (int i = 0; i < MAX_CALLBACKS; i++) {
@@ -123,13 +187,11 @@ static ssize_t jank_detection_store(struct kobject *kobj,
   int value;
   int enable;
   unsigned int feature_code;
-  unsigned int prev_features;
 
   ret = kstrtoint(buf, 0, &value);
   if (ret < 0)
     return ret;
 
-  prev_features = features;
   enable = (value & 0x10) >> 4;
   feature_code = value & 0x0F;
 
@@ -141,6 +203,9 @@ static ssize_t jank_detection_store(struct kobject *kobj,
           case FEATURE_SBE:
               features |= FEATURE_SBE;
               break;
+          case FEATURE_OFF:
+              features |= FEATURE_OFF;
+              break;
       }
   } else {
       switch (feature_code) {
@@ -150,16 +215,20 @@ static ssize_t jank_detection_store(struct kobject *kobj,
           case FEATURE_SBE:
               features &= ~FEATURE_SBE;
               break;
+          case FEATURE_OFF:
+              features &= ~FEATURE_OFF;
+              break;
       }
   }
 
-
-  if (!prev_features && ((features & FEATURE_FPSGO) || (features & FEATURE_SBE))) {
+  if (!feature_status && !(features & FEATURE_OFF) && ((features & FEATURE_FPSGO) || (features & FEATURE_SBE))) {
     ret = jank_detection_enable();
     if (ret < 0)
       return ret;
-  } else if (prev_features && !features) {
+    feature_status = true;
+  } else if (feature_status && (!features | (features & FEATURE_OFF))) {
     jank_detection_disable();
+    feature_status = false;
   }
 
   return count;
@@ -179,8 +248,12 @@ static int __init jank_detection_init(void) {
   error = sysfs_create_file(jank_detection_kobject,
                             &jank_detection_attribute.attr);
 
-  //register_heavy_callback_fp = register_heavy_callback;
-  //unregister_heavy_callback_fp = unregister_heavy_callback;
+  //register_jank_ux_callback_fp = register_jank_ux_callback;
+  //unregister_jank_ux_callback_fp = unregister_jank_ux_callback;
+  //enable_ux_jank_detection_fp = enable_ux_jank_detection;
+
+  fpsgo2jank_detection_register_callback_fp = register_heavy_callback;
+  fpsgo2jank_detection_unregister_callback_fp = unregister_heavy_callback;
 
   return error;
 }

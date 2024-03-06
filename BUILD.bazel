@@ -19,6 +19,7 @@ define_mgk_ko(
         "src/jank_detection_common.c",
         "src/jank_detection_utils.c",
         "include/jank_detection_common.h",
+        "include/jank_detection_common_core.h",
         "include/jank_detection_utils.h",
         "Kbuild",
         "Makefile",
