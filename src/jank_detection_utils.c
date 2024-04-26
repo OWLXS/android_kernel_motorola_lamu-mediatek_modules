@@ -5,7 +5,12 @@
 
 #include <linux/spinlock.h>
 #include <linux/slab.h>
+#include <linux/version.h>
+#if (KERNEL_VERSION(6, 7, 0) >= LINUX_VERSION_CODE)
 #include <linux/sched.h>
+#else
+#include <linux/pid.h>
+#endif
 #include <linux/random.h>
 #include "jank_detection_utils.h"
 
