@@ -144,9 +144,6 @@ void cfm_cfg_process(char *filename)
 				ret);
 		return;
 	}
-	pr_info("get filename(%s) size(%zu)",
-			filename,
-			data->size);
 
 	if (connfem_ctx) {
 		/* If cfm_cfg_process() is not called by connfem_mod_init()
@@ -167,6 +164,7 @@ void cfm_cfg_process(char *filename)
 		release_firmware(data);
 		return;
 	}
+	pr_info("Get filename(%s) size(%zu)", filename, data->size);
 
 	/* Check if magic str is caught in the beginning of a file
 	 * and get type of the binary file.

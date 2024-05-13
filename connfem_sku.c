@@ -16,7 +16,7 @@
  ******************************************************************************/
 #define CFM_DT_PROP_VID		"vid"
 #define CFM_DT_PROP_PID		"pid"
-#define CFM_DT_PROP_FLAG		"flag"
+#define CFM_DT_PROP_FLAG	"flag"
 
 /*******************************************************************************
  *			    D A T A   T Y P E S
@@ -33,7 +33,7 @@
 struct cfm_sku_tt_usage_mapping {
 	const char* node_name;
 	struct connfem_sku_fem_truth_table_usage*
-		(*get_tt_usg)(struct connfem_sku*, int);
+		(*get_tt_usg)(struct connfem_sku*, unsigned int);
 };
 
 /*******************************************************************************
@@ -61,10 +61,10 @@ static int cfm_sku_tt_usg_subsys_entry(struct connfem_sku *sku,
 		struct connfem_sku_fem_truth_table_usage **tt_usg);
 
 static struct connfem_sku_fem_truth_table_usage* cfm_sku_get_tt_usage_wf(
-		struct connfem_sku* sku, int idx);
+		struct connfem_sku* sku, unsigned int idx);
 
 static struct connfem_sku_fem_truth_table_usage* cfm_sku_get_tt_usage_bt(
-		struct connfem_sku* sku, int idx);
+		struct connfem_sku* sku, unsigned int idx);
 
 static void cfm_sku_array_log_helper(char *str, size_t size,
 		void *arr, size_t count, enum cfm_array_type type);
@@ -108,7 +108,7 @@ static int cfm_sku_tt_usg_subsys_entry(struct connfem_sku *sku,
 		const char *fem_name, const char *subsys_name,
 		struct connfem_sku_fem_truth_table_usage **tt_usg)
 {
-	int i;
+	unsigned int i;
 	struct cfm_sku_tt_usage_mapping *map = cfm_sku_tt_usage_mappings;
 
 	if (!sku || !subsys_name || !fem_name || !tt_usg) {
@@ -153,13 +153,13 @@ static int cfm_sku_tt_usg_subsys_entry(struct connfem_sku *sku,
 }
 
 static struct connfem_sku_fem_truth_table_usage* cfm_sku_get_tt_usage_wf(
-		struct connfem_sku* sku, int idx)
+		struct connfem_sku* sku, unsigned int idx)
 {
     return &sku->fem[idx].tt_usage_wf;
 }
 
 static struct connfem_sku_fem_truth_table_usage* cfm_sku_get_tt_usage_bt(
-		struct connfem_sku* sku, int idx)
+		struct connfem_sku* sku, unsigned int idx)
 {
     return &sku->fem[idx].tt_usage_bt;
 }
@@ -1276,7 +1276,11 @@ static void cfm_sku_array_log_helper(char *str, size_t size,
 			break;
 		}
 
-		snprintf(str + strlen(str), avail_sz, fmt, val);
+		if (snprintf(str + strlen(str), avail_sz, fmt, val) < 0) {
+			pr_info("%s: error when writing in str (%d/%d)",
+				__func__, sz, avail_sz);
+			break;
+		}
 	}
 }
 

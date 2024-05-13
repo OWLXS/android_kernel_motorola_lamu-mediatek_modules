@@ -286,10 +286,7 @@ static int cfm_ioc_is_available_hdlr(unsigned long usr_arg)
 
 static int cfm_ioc_epa_cont_empty(uint64_t usr_cont)
 {
-	struct cfm_container empty;
-
-	empty.cnt = 0;
-	empty.entry_sz = 0;
+	struct cfm_container empty = {0};
 
 	if (copy_to_user((void *)usr_cont, &empty, sizeof(empty)) != 0) {
 		pr_info("%s, copy_to_user failed", __func__);
