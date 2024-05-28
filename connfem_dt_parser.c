@@ -177,14 +177,15 @@ const char *cfm_epaelna_mtk_nodenames[]	= {CFM_DT_NODE_EPAELNA_MTK};
 static struct device_node* cfm_dt_node_parse_helper(void *cfm,
 		const char **internal_node_names, const char **node_names)
 {
-	struct device_node *dn =
-		((struct connfem_context_ops *)cfm)->pdev->dev.of_node;
+	struct device_node *dn;
 	struct device_node *np = NULL;
 
 	if (!cfm || !internal_node_names || !node_names) {
 		pr_info("%s: Missing input", __func__);
 		return NULL;
 	}
+
+	dn = ((struct connfem_context_ops *)cfm)->pdev->dev.of_node;
 
 	/* Search internal node ... */
 	if (connfem_is_internal()) {
