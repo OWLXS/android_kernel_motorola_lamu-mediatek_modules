@@ -1369,7 +1369,7 @@ static int drv_do_ioremap(void)
 		return -1;
 	} else {
 		WCN_DBG(FM_NTC | CHIP, "[FM_SPI] 0x%llx:0x%08x\n",
-			info->spi_phy_addr, info->spi_size);
+			(uint64_t)info->spi_phy_addr, info->spi_size);
 	}
 
 	info->top_phy_addr = ei->base_addr[CONN_HOST_CSR_TOP];
@@ -1382,7 +1382,7 @@ static int drv_do_ioremap(void)
 		return -1;
 	} else {
 		WCN_DBG(FM_NTC | CHIP, "[FM_TOP] 0x%llx:0x%08x\n",
-			info->top_phy_addr, info->top_size);
+			(uint64_t)info->top_phy_addr, info->top_size);
 	}
 
 	info->mcu_phy_addr = ei->base_addr[MCU_CFG_CONSYS];
@@ -1395,7 +1395,7 @@ static int drv_do_ioremap(void)
 		return -1;
 	} else {
 		WCN_DBG(FM_NTC | CHIP, "[FM_MCU] 0x%llx:0x%08x\n",
-			info->mcu_phy_addr, info->mcu_size);
+			(uint64_t)info->mcu_phy_addr, info->mcu_size);
 	}
 
 	return 0;
