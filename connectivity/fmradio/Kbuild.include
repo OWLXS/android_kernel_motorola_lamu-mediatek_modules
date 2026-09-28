@@ -38,6 +38,13 @@ else
 endif
 ccflags-y += -D MTK_WCN_WMT_STP_EXP_SYMBOL_ABSTRACT
 
+# Build fmradio without LTO. plat/legacy_wmt.c defines __weak stubs for
+# fm_low_ops_register & co. whose addresses go into the fm_wcn_ops table;
+# under ThinLTO each backend treats a weak definition as interposable and
+# emits R_AARCH64_ADR_GOT_PAGE / LD64_GOT_LO12_NC for the address, which the
+# arm64 module loader (arch/arm64/kernel/module.c) rejects with ENOEXEC.
+ccflags-remove-y += $(CC_FLAGS_LTO)
+
 ccflags-y += -I$(DEVICE_MODULES_PATH)/drivers/misc/mediatek/include
 ccflags-y += -I$(DEVICE_MODULES_PATH)/drivers/misc/mediatek/include/mt-plat
 
