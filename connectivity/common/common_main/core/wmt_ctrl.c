@@ -38,6 +38,7 @@
 #include "wmt_lib.h"
 #include "wmt_dev.h"
 #include "wmt_plat.h"
+#include "stp_btif.h"
 #include "hif_sdio.h"
 #include "stp_core.h"
 #include "stp_dbg.h"
@@ -168,10 +169,15 @@ static const WMT_CTRL_FUNC wmt_ctrl_func[] = {
 *                              F U N C T I O N S
 ********************************************************************************
 */
-INT32 __weak mtk_wcn_consys_stp_btif_parser_wmt_evt(const PUINT8 str, UINT32 len)
-{
-	return 0;
-}
+/* lamu: dropped -- this was a __weak stub whose address is taken elsewhere
+ * in this file to register as a callback/function pointer. A weak reference
+ * forces the compiler to emit a GOT-indirect relocation (R_AARCH64_ADR_GOT_PAGE,
+ * type 311) that arch/arm64/kernel/module.c's apply_relocate_add() doesn't
+ * implement, so wmt_drv.ko failed to load at all ("unsupported RELA
+ * relocation: 311"), killing WiFi+BT+FM together. The real implementation
+ * always exists elsewhere in this same module build, so the weak fallback
+ * here was dead code anyway -- confirmed via dmesg + cross-tree grep, 04/10.
+ */
 
 INT32 wmt_ctrl(P_WMT_CTRL_DATA pWmtCtrlData)
 {

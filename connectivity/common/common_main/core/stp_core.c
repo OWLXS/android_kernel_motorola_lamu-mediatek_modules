@@ -150,51 +150,20 @@ static LONG stp_parser_dmp_num(PUINT8 str);
 static INT32 wmt_parser_data(PUINT8 buffer, UINT32 length, UINT8 type);
 static MTK_WCN_BOOL mtk_wcn_stp_is_info_task(VOID);
 
-INT32 __weak mtk_wcn_consys_stp_btif_logger_ctrl(enum _ENUM_BTIF_DBG_ID_ flag)
-{
-	STP_INFO_FUNC("in combo flow, mtk_wcn_consys_stp_btif_logger_ctrl is not define!!\n");
-	return 0;
-}
-INT32 __weak mtk_wcn_consys_stp_btif_open(VOID)
-{
-	STP_INFO_FUNC("in combo flow, mtk_wcn_consys_stp_btif_open is not define!!\n");
+/* lamu: dropped -- this was a __weak stub whose address is taken elsewhere
+ * in this file to register as a callback/function pointer. A weak reference
+ * forces the compiler to emit a GOT-indirect relocation (R_AARCH64_ADR_GOT_PAGE,
+ * type 311) that arch/arm64/kernel/module.c's apply_relocate_add() doesn't
+ * implement, so wmt_drv.ko failed to load at all ("unsupported RELA
+ * relocation: 311"), killing WiFi+BT+FM together. The real implementation
+ * always exists elsewhere in this same module build, so the weak fallback
+ * here was dead code anyway -- confirmed via dmesg + cross-tree grep, 04/10.
+ */
 
-	return 0;
-}
 
-INT32 __weak mtk_wcn_consys_stp_btif_close(VOID)
-{
-	STP_INFO_FUNC("in combo flow, mtk_wcn_consys_stp_btif_close is not define!!\n");
 
-	return 0;
-}
 
-INT32 __weak mtk_wcn_consys_stp_btif_rx_cb_register(MTK_WCN_BTIF_RX_CB rx_cb)
-{
-	STP_INFO_FUNC("in combo flow, mtk_wcn_consys_stp_btif_rx_cb_register is not define!!\n");
-	return 0;
-}
 
-INT32 __weak mtk_wcn_consys_stp_btif_tx(const PUINT8 pBuf, const UINT32 len, PUINT32 written_len)
-{
-	STP_INFO_FUNC("in combo flow, mtk_wcn_consys_stp_btif_tx is not define!!\n");
-
-	return 0;
-}
-
-INT32 __weak mtk_wcn_consys_stp_btif_wakeup(VOID)
-{
-	STP_INFO_FUNC("in combo flow, mtk_wcn_consys_stp_btif_wakeup is not define!!\n");
-
-	return 0;
-}
-
-INT32 __weak mtk_wcn_consys_stp_btif_lpbk_ctrl(enum _ENUM_BTIF_LPBK_MODE_ mode)
-{
-	STP_INFO_FUNC("in combo flow, mtk_wcn_consys_stp_btif_lpbk_ctrl is not define!!\n");
-
-	return 0;
-}
 
 static INT32 stp_ctx_lock_init(mtkstp_context_struct *pctx)
 {

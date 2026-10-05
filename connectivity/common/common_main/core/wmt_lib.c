@@ -38,6 +38,7 @@
 #include "wmt_lib.h"
 #include "wmt_conf.h"
 #include "wmt_core.h"
+#include "stp_btif.h"
 #include "wmt_plat.h"
 #include "wmt_plat_stub.h"
 #include "wmt_detect.h"
@@ -158,12 +159,15 @@ static VOID wmt_lib_assert_work_cb(struct work_struct *work);
 *                              F U N C T I O N S
 ********************************************************************************
 */
-INT32 __weak mtk_wcn_consys_stp_btif_dpidle_ctrl(UINT32 en_flag)
-{
-	WMT_ERR_FUNC("mtk_wcn_consys_stp_btif_dpidle_ctrl is not define!!!\n");
-
-	return 0;
-}
+/* lamu: dropped -- this was a __weak stub whose address is taken elsewhere
+ * in this file to register as a callback/function pointer. A weak reference
+ * forces the compiler to emit a GOT-indirect relocation (R_AARCH64_ADR_GOT_PAGE,
+ * type 311) that arch/arm64/kernel/module.c's apply_relocate_add() doesn't
+ * implement, so wmt_drv.ko failed to load at all ("unsupported RELA
+ * relocation: 311"), killing WiFi+BT+FM together. The real implementation
+ * always exists elsewhere in this same module build, so the weak fallback
+ * here was dead code anyway -- confirmed via dmesg + cross-tree grep, 04/10.
+ */
 
 INT32 wmt_lib_wlan_lock_aquire(VOID)
 {

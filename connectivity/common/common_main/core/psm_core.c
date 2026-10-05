@@ -100,11 +100,17 @@ static INT32 _stp_psm_is_redundant_active_op(P_OSAL_OP pOp, P_OSAL_OP_Q pOpQ);
 
 static INT32 _stp_psm_clean_up_redundant_active_op(P_OSAL_OP_Q pOpQ);
 static MTK_WCN_BOOL _stp_psm_is_quick_ps_support(VOID);
+#include "wmt_plat.h"
 
-ENUM_STP_TX_IF_TYPE __weak wmt_plat_get_comm_if_type(VOID)
-{
-	return STP_MAX_IF_TX;
-}
+/* lamu: dropped -- this was a __weak stub whose address is taken elsewhere
+ * in this file to register as a callback/function pointer. A weak reference
+ * forces the compiler to emit a GOT-indirect relocation (R_AARCH64_ADR_GOT_PAGE,
+ * type 311) that arch/arm64/kernel/module.c's apply_relocate_add() doesn't
+ * implement, so wmt_drv.ko failed to load at all ("unsupported RELA
+ * relocation: 311"), killing WiFi+BT+FM together. The real implementation
+ * always exists elsewhere in this same module build, so the weak fallback
+ * here was dead code anyway -- confirmed via dmesg + cross-tree grep, 04/10.
+ */
 
 MTK_WCN_BOOL mtk_wcn_stp_psm_dbg_level(INT32 dbglevel)
 {

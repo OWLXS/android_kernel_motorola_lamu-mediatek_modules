@@ -261,37 +261,37 @@ GPIO_CTRL_INFO gpio_ctrl_info;
 *                              F U N C T I O N S
 ********************************************************************************
 */
-int __weak mt_get_gpio_mode_base(unsigned long pin)
+int mt_get_gpio_mode_base(unsigned long pin)
 {
 	return 0;
 }
 
-int __weak mt_get_gpio_pull_select_base(unsigned long pin)
+int mt_get_gpio_pull_select_base(unsigned long pin)
 {
 	return 0;
 }
 
-int __weak mt_get_gpio_in_base(unsigned long pin)
+int mt_get_gpio_in_base(unsigned long pin)
 {
 	return 0;
 }
 
-int __weak mt_get_gpio_out_base(unsigned long pin)
+int mt_get_gpio_out_base(unsigned long pin)
 {
 	return 0;
 }
 
-int __weak mt_get_gpio_pull_enable_base(unsigned long pin)
+int mt_get_gpio_pull_enable_base(unsigned long pin)
 {
 	return 0;
 }
 
-int __weak mt_get_gpio_dir_base(unsigned long pin)
+int mt_get_gpio_dir_base(unsigned long pin)
 {
 	return 0;
 }
 
-int __weak mt_get_gpio_ies_base(unsigned long pin)
+int mt_get_gpio_ies_base(unsigned long pin)
 {
 	return 0;
 }

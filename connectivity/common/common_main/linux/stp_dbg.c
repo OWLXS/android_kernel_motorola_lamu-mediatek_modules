@@ -39,6 +39,7 @@
 /* #include "stp_btm.h" */
 #include "btm_core.h"
 #include "wmt_plat.h"
+#include "mtk_btif_exp.h"
 #include "wmt_detect.h"
 #include "stp_sdio.h"
 #include "stp_core.h"
@@ -137,11 +138,15 @@ static _osal_inline_ INT32 stp_dbg_parser_assert_str(PINT8 str, ENUM_ASSERT_INFO
 static _osal_inline_ P_STP_DBG_CPUPCR_T stp_dbg_cpupcr_init(VOID);
 static _osal_inline_ VOID stp_dbg_cpupcr_deinit(P_STP_DBG_CPUPCR_T pCpupcr);
 
-INT32 __weak mtk_btif_rxd_be_blocked_flag_get(VOID)
-{
-	STP_DBG_PR_INFO("mtk_btif_rxd_be_blocked_flag_get is not define!!!\n");
-	return 0;
-}
+/* lamu: dropped -- this was a __weak stub whose address is taken elsewhere
+ * in this file to register as a callback/function pointer. A weak reference
+ * forces the compiler to emit a GOT-indirect relocation (R_AARCH64_ADR_GOT_PAGE,
+ * type 311) that arch/arm64/kernel/module.c's apply_relocate_add() doesn't
+ * implement, so wmt_drv.ko failed to load at all ("unsupported RELA
+ * relocation: 311"), killing WiFi+BT+FM together. The real implementation
+ * always exists elsewhere in this same module build, so the weak fallback
+ * here was dead code anyway -- confirmed via dmesg + cross-tree grep, 04/10.
+ */
 
 /* operation definition */
 static struct genl_ops stp_dbg_gnl_ops_array[] = {

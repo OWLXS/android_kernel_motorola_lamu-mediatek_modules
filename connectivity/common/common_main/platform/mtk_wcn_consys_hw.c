@@ -111,24 +111,24 @@ static struct notifier_block connsys_pm_notifier;
 
 #ifdef CONFIG_OF
 
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt6580 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt6739 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt8163 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt8167 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt6771 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt6765 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt6761 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt6779 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt6768 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt6785 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt6781 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt6789 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt6833 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt6835 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt6853 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt6855 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt6873 = {};
-WMT_CONSYS_IC_OPS __weak consys_ic_ops_mt8168 = {};
+WMT_CONSYS_IC_OPS consys_ic_ops_mt6580 = {};
+WMT_CONSYS_IC_OPS consys_ic_ops_mt6739 = {};
+WMT_CONSYS_IC_OPS consys_ic_ops_mt8163 = {};
+WMT_CONSYS_IC_OPS consys_ic_ops_mt8167 = {};
+WMT_CONSYS_IC_OPS consys_ic_ops_mt6771 = {};
+WMT_CONSYS_IC_OPS consys_ic_ops_mt6765 = {};
+WMT_CONSYS_IC_OPS consys_ic_ops_mt6761 = {};
+WMT_CONSYS_IC_OPS consys_ic_ops_mt6779 = {};
+extern WMT_CONSYS_IC_OPS consys_ic_ops_mt6768;
+WMT_CONSYS_IC_OPS consys_ic_ops_mt6785 = {};
+WMT_CONSYS_IC_OPS consys_ic_ops_mt6781 = {};
+WMT_CONSYS_IC_OPS consys_ic_ops_mt6789 = {};
+WMT_CONSYS_IC_OPS consys_ic_ops_mt6833 = {};
+WMT_CONSYS_IC_OPS consys_ic_ops_mt6835 = {};
+WMT_CONSYS_IC_OPS consys_ic_ops_mt6853 = {};
+WMT_CONSYS_IC_OPS consys_ic_ops_mt6855 = {};
+WMT_CONSYS_IC_OPS consys_ic_ops_mt6873 = {};
+WMT_CONSYS_IC_OPS consys_ic_ops_mt8168 = {};
 
 const struct of_device_id apwmt_of_ids[] = {
 	{.compatible = "mediatek,mt6580-consys", .data = &consys_ic_ops_mt6580},
